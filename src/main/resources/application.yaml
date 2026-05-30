@@ -1,3 +1,20 @@
+server:
+  port: ${SERVER_PORT:8080}
+
 spring:
   application:
     name: Spaces
+
+  datasource:
+    url: "jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:momentlit_spaces}"
+    username: "${DB_USERNAME:spaces_user}"
+    password: "${DB_PASSWORD:spaces_password}"
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: "${JPA_DDL_AUTO:update}"
+    show-sql: true
+
+jwt:
+  secret: "${JWT_SECRET:momentlit-spaces-service-jwt-secret-key-for-local-test-1234567890}"
