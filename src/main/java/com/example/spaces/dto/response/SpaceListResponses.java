@@ -1,6 +1,6 @@
-package src.main.java.com.example.spaces.dto.response;
+package com.example.spaces.dto.response;
 
-
+import com.example.spaces.entity.Space;
 
 import java.util.List;
 
