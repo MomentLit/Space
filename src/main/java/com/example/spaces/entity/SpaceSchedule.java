@@ -1,4 +1,4 @@
-package src.main.java.com.example.spaces.entity;
+package com.example.spaces.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

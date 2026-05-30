@@ -1,4 +1,4 @@
-package src.main.java.com.example.spaces.entity;
+package com.example.spaces.entity;
 
 
 import jakarta.persistence.*;
@@ -124,22 +124,33 @@ public class Space {
             String name,
             String description,
             String aiSummary,
-            String address,
             String thumbnailUrl,
             Integer pricePerHour,
-            SpaceCategory category,
-            BigDecimal lat,
-            BigDecimal lng
+            SpaceCategory category
     ) {
-        this.name = name;
-        this.description = description;
-        this.aiSummary = aiSummary;
-        this.address = address;
-        this.thumbnailUrl = thumbnailUrl;
-        this.pricePerHour = pricePerHour;
-        this.category = category;
-        this.lat = lat;
-        this.lng = lng;
+        if (name != null) {
+            this.name = name;
+        }
+
+        if (description != null) {
+            this.description = description;
+        }
+
+        if (aiSummary != null) {
+            this.aiSummary = aiSummary;
+        }
+
+        if (thumbnailUrl != null) {
+            this.thumbnailUrl = thumbnailUrl;
+        }
+
+        if (pricePerHour != null) {
+            this.pricePerHour = pricePerHour;
+        }
+
+        if (category != null) {
+            this.category = category;
+        }
     }
 
     public void delete() {
