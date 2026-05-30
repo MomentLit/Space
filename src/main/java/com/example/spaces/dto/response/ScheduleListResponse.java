@@ -8,9 +8,6 @@ import java.util.Comparator;
 import java.util.List;
 
 public record ScheduleListResponse(
-        @JsonProperty("schedule_id")
-        Long scheduleId,
-
         LocalDate date,
 
         @JsonProperty("time_blocks")
@@ -26,7 +23,6 @@ public record ScheduleListResponse(
                 .toList();
 
         return new ScheduleListResponse(
-                sortedSchedules.get(0).getId(),
                 date,
                 sortedSchedules.stream()
                         .map(ScheduleTimeBlockResponse::from)
