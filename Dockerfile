@@ -1,4 +1,20 @@
-FROM ubuntu:latest
-LABEL authors="jhlarry1109"
+FROM amazoncorretto:21-alpine AS builder
 
-ENTRYPOINT ["top", "-b"]
+WORKDIR /app
+
+COPY gradlew settings.gradle build.gradle ./
+COPY gradle ./gradle
+RUN ./gradlew dependencies --no-daemon
+
+COPY src ./src
+RUN ./gradlew bootJar -x test --no-daemon
+
+FROM eclipse-temurin:21-jre-alpine
+
+WORKDIR /app
+
+COPY --from=builder /app/build/libs/*.jar app.jar
+
+EXPOSE 8082
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
