@@ -1,94 +1,81 @@
 # AGENTS.md
 
-## 역할
+## Role
 
-이 레포에서 작업하는 AI 에이전트는 MSA 서비스의 코드 분석, 문서화, 제한된 코드 변경을 수행하는 보조자다.
+You are an AI coding assistant working inside this backend service repository.
+Your job is to help implement backend features while strictly following the existing architecture, conventions, API specification, and documentation.
 
-에이전트는 코드에서 확인 가능한 사실과 추정, 확인 필요 사항을 명확히 분리해야 한다.
+Service context: Space uses `com.example.space` and currently has this responsibility: Space creation, listing, detail lookup, update, soft deletion, owner space listing, schedule creation/listing/update/deletion, and image URL persistence.
 
-## 기본 원칙
+## Required Reading
 
-* 코드에서 직접 확인 가능한 사실만 확정적으로 작성한다.
-* 코드 근거가 약한 내용은 `추정`으로 표시한다.
-* 코드에서 확인할 수 없는 내용은 `확인 필요`로 표시한다.
-* 존재하지 않는 정책, 권한, 상태 전이, 외부 연동을 임의로 만들지 않는다.
-* 작업 범위를 벗어난 파일을 수정하지 않는다.
-* 임시 파일을 만들지 않는다.
-* 문서와 코드가 충돌하면 코드를 기준으로 판단하고, 문서에는 불일치 가능성을 기록한다.
+Before suggesting or modifying code, read:
 
-## MSA 경계 규칙
+- `docs/service-overview.md`
+- `docs/service-policy.md`
+- `docs/common/development-flow.md`
+- `docs/common/ai-usage-guide.md`
+- `docs/common/coding-convention.md`
+- `docs/common/architecture-guide.md`
+- `docs/common/issue-guide.md`
+- `docs/common/pr-guide.md`
+- `docs/common/review-guide.md`
+- `API_SPEC.yaml`
 
-* 각 서비스는 자신의 도메인 책임만 가진다.
-* 다른 서비스의 내부 구현을 현재 서비스 문서에 포함하지 않는다.
-* 다른 서비스와의 연결은 `외부 의존성` 또는 `확인 필요`로만 기록한다.
-* Reservation, Payment, Member, Review, Chat 등의 책임을 Space Service 책임으로 섞지 않는다.
-* FeignClient, WebClient, Kafka, Event Publisher, S3 등 외부 연동은 실제 코드에서 확인된 경우에만 문서화한다.
+## Core Rules
 
-## 문서화 규칙
+- Do not introduce a new architecture unless explicitly requested.
+- Follow the existing package structure of this service.
+- Keep changes minimal and focused on the Issue.
+- Do not modify unrelated files.
+- Do not expose secrets, API keys, credentials, or personal information.
+- Do not generate large speculative abstractions.
+- Prefer consistency with the existing code over generic best practices.
+- If requirements are unclear, identify questions instead of guessing.
+- The project Docs, API specification, and existing code structure override general AI recommendations.
+- Issue and PR responsibility belongs to the human developer, not the AI.
 
-* 문서 작성 시 관련 클래스명, 메서드명, 파일 경로를 가능한 한 함께 적는다.
-* Controller 기준으로 API를 문서화한다.
-* Application Service 기준으로 유스케이스 흐름을 문서화한다.
-* Entity와 Repository 기준으로 데이터 구조를 문서화한다.
-* Domain, Entity, Enum 기준으로 비즈니스 규칙을 문서화한다.
-* Exception은 발생 위치, 발생 조건, 메시지, HTTP 응답 매핑 여부를 분리해 작성한다.
-* Mermaid diagram은 실제 코드 흐름 기준으로만 작성한다.
-* 실패 응답 포맷, validation 정책, 권한 정책은 코드 근거가 없으면 확정하지 않는다.
+## API Specification Rule
 
-## 코드 변경 규칙
+- `API_SPEC.yaml` is the source of truth for this service's API contract.
+- If implementation changes API behavior, update `API_SPEC.yaml` in the same PR.
+- API behavior includes paths, methods, request fields, response fields, status codes, error responses, authentication, authorization, query parameters, path parameters, validation behavior, pagination, sorting, and filtering.
+- Do not leave API documentation updates for a later PR unless explicitly approved.
+- If API behavior is unclear, mark it as `Needs confirmation` instead of guessing.
 
-* 사용자가 명시적으로 코드 수정을 요청하지 않으면 코드를 수정하지 않는다.
-* 문서화 작업 중 리팩터링하지 않는다.
-* 문서화 작업 중 테스트 코드를 추가하지 않는다.
-* 코드 수정이 필요해 보이면 직접 수정하지 말고 `코드 수정 후보` 또는 `open question`으로 기록한다.
-* 보안 위험이 보이면 문서에 주의사항으로 기록하고 별도 이슈 후보로 제안한다.
+## Backend Rules
 
-## Space Service 문서화 규칙
+- Controllers handle HTTP request/response only.
+- Services contain business logic.
+- Repositories handle persistence.
+- Do not return entities directly from API responses.
+- Use request and response DTOs when the service already follows that pattern.
+- Use project-specific exceptions when they exist.
+- Do not throw raw `RuntimeException` unless the existing service explicitly uses that pattern and no project-specific exception exists.
+- Do not change package structure without explicit instruction.
+- Do not add dependencies without explicit instruction.
 
-Space Service를 문서화할 때는 다음 사항을 반드시 지킨다.
+## Work Flow
 
-* Space Service의 실제 패키지와 파일 경로를 기준으로 작성한다.
-* `docs/space/` 하위에만 Space Service 문서를 작성한다.
-* `SpaceController` 기준으로 API를 정리한다.
-* `SpaceService` 기준으로 주요 유스케이스를 정리한다.
-* `Space`, `SpaceImage`, `SpaceSchedule` 기준으로 Entity 구조를 정리한다.
-* `ApprovalStatus`, `SpaceCategory`는 실제 enum 값만 문서화한다.
-* `SpaceImage`, `SpaceSchedule`은 객체 연관관계가 아니라 `spaceId` 값으로 연결된다는 점을 명시한다.
-* 실제 DB FK, Index, DDL은 코드만으로 확정하지 않는다.
+1. Read the Issue.
+2. Read the relevant Docs.
+3. Read `API_SPEC.yaml` when API behavior is involved.
+4. Create an implementation plan before writing code.
+5. Keep changes small and focused.
+6. Review the code against the Docs and `API_SPEC.yaml`.
+7. Update `API_SPEC.yaml` if API behavior changed.
+8. Provide verification steps.
+9. Mention whether Docs need updates.
 
-## Space Service 주의사항
+## Output Rules
 
-다음 항목은 확정 정책처럼 쓰지 말고 주의사항 또는 확인 필요로 기록한다.
+When proposing code changes, provide:
 
-* `ApprovalStatus`는 존재하지만 일반 조회/상세 조회 필터에는 현재 사용되지 않는다.
-* `isActive`는 생성/삭제 시 변경되지만 대부분의 조회 필터에서는 `deletedAt` 중심으로 사용된다.
-* `GET /spaces/me`는 인증이 필요한 API로 보이나, `SecurityConfig` matcher 순서상 공개 접근 위험이 있을 수 있다.
-* `@ControllerAdvice`, `@ExceptionHandler`가 확인되지 않으면 HTTP 실패 응답을 확정하지 않는다.
-* DTO에 validation 제약 어노테이션이 없으면 필수값 정책을 확정하지 않는다.
-* 일정 중복, 예약 충돌, 예약된 일정 수정/삭제 제한 정책은 코드에서 확인되지 않으면 확정하지 않는다.
-* 이미지 업로드 저장소 연동이 확인되지 않으면 현재는 이미지 URL 저장만 문서화한다.
-
-## open-questions 기록 규칙
-
-확인 불가능한 내용은 `docs/space/open-questions.md` 또는 해당 서비스의 open-questions 문서에 기록한다.
-
-질문은 가능하면 다음 분류로 나눈다.
-
-* 도메인 정책 확인 필요
-* MSA 책임 경계 확인 필요
-* 권한 / 인증 확인 필요
-* 상태값 / 상태 전이 확인 필요
-* API 스펙 확인 필요
-* 데이터 구조 확인 필요
-* 외부 의존성 확인 필요
-* 보안 이슈 확인 필요
-
-## 최종 보고 규칙
-
-작업 완료 후에는 다음을 보고한다.
-
-* 생성/수정한 파일 목록
-* 각 파일의 핵심 내용
-* 확인 필요로 남긴 항목
-* 코드 수정이 필요한 후보
-* 문서화 중 발견한 위험 요소
+1. Changed files
+2. Reason for each change
+3. Implementation plan
+4. Code changes
+5. API_SPEC.yaml changes, if any
+6. Test or verification method
+7. Risks or assumptions
+8. Docs update necessity

@@ -1,0 +1,390 @@
+openapi: 3.0.3
+info:
+  title: "Space API"
+  description: "API specification for Space. Error response mapping is Needs confirmation because no global exception handler is visible."
+  version: "0.1.0"
+servers:
+  - url: "Needs confirmation"
+    description: "Needs confirmation"
+tags:
+  - name: "Spaces"
+  - name: "Schedules"
+paths:
+  /spaces:
+    post:
+      tags: ["Spaces"]
+      summary: "Create a space"
+      description: "Creates a space for the authenticated host."
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SpaceCreateRequest"
+      responses:
+        "201":
+          description: "Space created."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpaceCreateApiResponse"
+        default:
+          description: "Needs confirmation"
+    get:
+      tags: ["Spaces"]
+      summary: "List spaces"
+      description: "Lists non-deleted spaces with optional name and category filters. Public by SecurityConfig."
+      parameters:
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: category
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/SpaceCategory"
+      responses:
+        "200":
+          description: "Spaces returned."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpaceListApiResponse"
+        default:
+          description: "Needs confirmation"
+  /spaces/me:
+    get:
+      tags: ["Spaces"]
+      summary: "List my spaces"
+      description: "Lists spaces owned by the authenticated host. SecurityConfig intends authentication, but matcher order may make this route public; Needs confirmation."
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: category
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/SpaceCategory"
+      responses:
+        "200":
+          description: "Owner spaces returned."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MySpaceListApiResponse"
+        default:
+          description: "Needs confirmation"
+  /spaces/{space-id}:
+    get:
+      tags: ["Spaces"]
+      summary: "Get space detail"
+      description: "Returns a non-deleted space and image URLs. Public by SecurityConfig."
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+      responses:
+        "200":
+          description: "Space detail returned."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpaceDetailApiResponse"
+        default:
+          description: "Needs confirmation"
+    patch:
+      tags: ["Spaces"]
+      summary: "Update a space"
+      description: "Updates an owned active space. Replaces image rows when image_urls is provided."
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SpaceUpdateRequest"
+      responses:
+        "204":
+          description: "Space updated."
+        default:
+          description: "Needs confirmation"
+    delete:
+      tags: ["Spaces"]
+      summary: "Delete a space"
+      description: "Soft-deletes an owned active space and deletes related image and schedule rows."
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+      responses:
+        "204":
+          description: "Space deleted."
+        default:
+          description: "Needs confirmation"
+  /spaces/{space-id}/schedule:
+    post:
+      tags: ["Schedules"]
+      summary: "Create a schedule"
+      description: "Creates an available schedule for an owned active space."
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScheduleCreateRequest"
+      responses:
+        "201":
+          description: "Schedule created."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScheduleCreateApiResponse"
+        default:
+          description: "Needs confirmation"
+    get:
+      tags: ["Schedules"]
+      summary: "List schedules"
+      description: "Lists schedules for a non-deleted space, grouped by date and ordered by start time. Public by SecurityConfig."
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+      responses:
+        "200":
+          description: "Schedules returned."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScheduleListApiResponse"
+        default:
+          description: "Needs confirmation"
+  /spaces/{space-id}/schedule/{schedule-id}:
+    patch:
+      tags: ["Schedules"]
+      summary: "Update a schedule"
+      description: "Updates an owned space schedule. Omitted fields keep existing values."
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+        - $ref: "#/components/parameters/ScheduleId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScheduleUpdateRequest"
+      responses:
+        "204":
+          description: "Schedule updated."
+        default:
+          description: "Needs confirmation"
+    delete:
+      tags: ["Schedules"]
+      summary: "Delete a schedule"
+      description: "Deletes a schedule for an owned active space."
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+        - $ref: "#/components/parameters/ScheduleId"
+      responses:
+        "204":
+          description: "Schedule deleted."
+        default:
+          description: "Needs confirmation"
+components:
+  parameters:
+    SpaceId:
+      name: "space-id"
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+    ScheduleId:
+      name: "schedule-id"
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        data:
+          nullable: true
+    SpaceCategory:
+      type: string
+      enum: [PRACTICE_ROOM, STUDIO, MEETING_ROOM, PARTY_ROOM, CLASSROOM, POPUP_STORE, OFFICE, HALL, CAFE, OTHER]
+    SpaceCreateRequest:
+      type: object
+      properties:
+        name: { type: string }
+        description: { type: string, nullable: true }
+        address: { type: string }
+        thumbnail_url: { type: string }
+        image_urls:
+          type: array
+          items: { type: string }
+        price_per_hour: { type: integer, format: int32 }
+        category:
+          $ref: "#/components/schemas/SpaceCategory"
+        lat: { type: number }
+        lng: { type: number }
+      description: "DTO has no field-level validation annotations in current code. Required fields are Needs confirmation."
+    SpaceUpdateRequest:
+      type: object
+      properties:
+        name: { type: string }
+        description: { type: string }
+        ai_summary: { type: string }
+        thumbnail_url: { type: string }
+        image_urls:
+          type: array
+          items: { type: string }
+        price_per_hour: { type: integer, format: int32 }
+        category:
+          $ref: "#/components/schemas/SpaceCategory"
+    SpaceCreateResponse:
+      type: object
+      properties:
+        space_id: { type: integer, format: int64 }
+    SpaceListResponse:
+      type: object
+      properties:
+        space_id: { type: integer, format: int64 }
+        name: { type: string }
+        address: { type: string }
+        thumbnail_url: { type: string }
+        price_per_hour: { type: integer, format: int32 }
+        category: { type: string }
+    SpaceListResponses:
+      type: object
+      properties:
+        spaces:
+          type: array
+          items:
+            $ref: "#/components/schemas/SpaceListResponse"
+    MySpaceListResponse:
+      allOf:
+        - $ref: "#/components/schemas/SpaceListResponse"
+        - type: object
+          properties:
+            admin_status:
+              type: string
+              enum: [PENDING, APPROVED, REJECTED]
+            is_active:
+              type: boolean
+    MySpaceListResponses:
+      type: object
+      properties:
+        spaces:
+          type: array
+          items:
+            $ref: "#/components/schemas/MySpaceListResponse"
+    SpaceDetailResponse:
+      type: object
+      properties:
+        space_id: { type: integer, format: int64 }
+        name: { type: string }
+        description: { type: string, nullable: true }
+        ai_summary: { type: string, nullable: true }
+        address: { type: string }
+        thumbnail_url: { type: string }
+        image_urls:
+          type: array
+          items: { type: string }
+        price_per_hour: { type: integer, format: int32 }
+        category: { type: string }
+    ScheduleCreateRequest:
+      type: object
+      properties:
+        start_time: { type: string, format: date-time }
+        end_time: { type: string, format: date-time }
+      description: "start_time and end_time are required by entity validation and start_time must be before end_time."
+    ScheduleUpdateRequest:
+      type: object
+      properties:
+        start_time: { type: string, format: date-time }
+        end_time: { type: string, format: date-time }
+        is_bookable: { type: boolean }
+    ScheduleCreateResponse:
+      type: object
+      properties:
+        schedule_id: { type: integer, format: int64 }
+    ScheduleTimeBlockResponse:
+      type: object
+      properties:
+        schedule_id: { type: integer, format: int64 }
+        start_time: { type: string, format: date-time }
+        end_time: { type: string, format: date-time }
+        status:
+          type: string
+          enum: [AVAILABLE, BLOCKED]
+    ScheduleListResponse:
+      type: object
+      properties:
+        date: { type: string, format: date }
+        time_blocks:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScheduleTimeBlockResponse"
+    ScheduleListResponses:
+      type: object
+      properties:
+        schedules:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScheduleListResponse"
+    SpaceCreateApiResponse:
+      allOf:
+        - $ref: "#/components/schemas/ApiResponse"
+        - type: object
+          properties: { data: { $ref: "#/components/schemas/SpaceCreateResponse" } }
+    SpaceListApiResponse:
+      allOf:
+        - $ref: "#/components/schemas/ApiResponse"
+        - type: object
+          properties: { data: { $ref: "#/components/schemas/SpaceListResponses" } }
+    MySpaceListApiResponse:
+      allOf:
+        - $ref: "#/components/schemas/ApiResponse"
+        - type: object
+          properties: { data: { $ref: "#/components/schemas/MySpaceListResponses" } }
+    SpaceDetailApiResponse:
+      allOf:
+        - $ref: "#/components/schemas/ApiResponse"
+        - type: object
+          properties: { data: { $ref: "#/components/schemas/SpaceDetailResponse" } }
+    ScheduleCreateApiResponse:
+      allOf:
+        - $ref: "#/components/schemas/ApiResponse"
+        - type: object
+          properties: { data: { $ref: "#/components/schemas/ScheduleCreateResponse" } }
+    ScheduleListApiResponse:
+      allOf:
+        - $ref: "#/components/schemas/ApiResponse"
+        - type: object
+          properties: { data: { $ref: "#/components/schemas/ScheduleListResponses" } }
+  responses: {}
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
