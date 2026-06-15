@@ -9,7 +9,36 @@ servers:
 tags:
   - name: "Spaces"
   - name: "Schedules"
+  - name: "Internal"
 paths:
+  /internal/spaces/{space-id}/matching-context:
+    get:
+      tags: ["Internal"]
+      summary: "Get space matching context"
+      description: "Internal endpoint used by Matching Service to resolve the host and validate approval, active state, and schedule availability."
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+        - name: start-time
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: end-time
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: "Matching context returned."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpaceMatchingContextResponse"
+        default:
+          description: "Needs confirmation"
   /spaces:
     post:
       tags: ["Spaces"]
@@ -265,6 +294,14 @@ components:
       type: object
       properties:
         space_id: { type: integer, format: int64 }
+    SpaceMatchingContextResponse:
+      type: object
+      properties:
+        space_id: { type: integer, format: int64 }
+        host_id: { type: string }
+        approved: { type: boolean }
+        active: { type: boolean }
+        available: { type: boolean }
     SpaceListResponse:
       type: object
       properties:
