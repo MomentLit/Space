@@ -10,6 +10,8 @@ import com.example.space.dto.response.ScheduleListResponses;
 import com.example.space.dto.response.SpaceCreateResponse;
 import com.example.space.dto.response.SpaceDetailResponse;
 import com.example.space.dto.response.SpaceListResponses;
+import com.example.space.dto.response.SpaceMatchingContextResponse;
+import com.example.space.entity.ApprovalStatus;
 import com.example.space.entity.Space;
 import com.example.space.entity.SpaceCategory;
 import com.example.space.entity.SpaceImage;
@@ -154,6 +156,33 @@ public class SpaceService {
                 spaceScheduleRepository.findAllBySpaceIdOrderByStartTimeAsc(spaceId);
 
         return ScheduleListResponses.from(schedules);
+    }
+
+    public SpaceMatchingContextResponse getMatchingContext(
+            Long spaceId,
+            LocalDateTime startTime,
+            LocalDateTime endTime
+    ) {
+        if (startTime == null || endTime == null || !endTime.isAfter(startTime)) {
+            throw new IllegalArgumentException("매칭 요청 시간이 올바르지 않습니다.");
+        }
+
+        Space space = getActiveSpace(spaceId);
+        boolean available =
+                spaceScheduleRepository
+                        .existsBySpaceIdAndIsBookableTrueAndStartTimeLessThanEqualAndEndTimeGreaterThanEqual(
+                                spaceId,
+                                startTime,
+                                endTime
+                        );
+
+        return new SpaceMatchingContextResponse(
+                space.getId(),
+                space.getHostId(),
+                space.getAdminStatus() == ApprovalStatus.APPROVED,
+                Boolean.TRUE.equals(space.getIsActive()),
+                available
+        );
     }
 
     @Transactional
