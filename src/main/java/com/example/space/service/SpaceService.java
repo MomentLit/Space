@@ -16,6 +16,10 @@ import com.example.space.entity.Space;
 import com.example.space.entity.SpaceCategory;
 import com.example.space.entity.SpaceImage;
 import com.example.space.entity.SpaceSchedule;
+import com.example.space.global.exception.BadRequestException;
+import com.example.space.global.exception.ForbiddenException;
+import com.example.space.global.exception.ScheduleNotFoundException;
+import com.example.space.global.exception.SpaceNotFoundException;
 import com.example.space.repository.SpaceImageRepository;
 import com.example.space.repository.SpaceRepository;
 import com.example.space.repository.SpaceScheduleRepository;
@@ -164,7 +168,7 @@ public class SpaceService {
             LocalDateTime endTime
     ) {
         if (startTime == null || endTime == null || !endTime.isAfter(startTime)) {
-            throw new IllegalArgumentException("매칭 요청 시간이 올바르지 않습니다.");
+            throw new BadRequestException("매칭 요청 시간이 올바르지 않습니다.");
         }
 
         Space space = getActiveSpace(spaceId);
@@ -196,7 +200,7 @@ public class SpaceService {
         validateOwner(space, userId);
 
         SpaceSchedule schedule = spaceScheduleRepository.findByIdAndSpaceId(scheduleId, spaceId)
-                .orElseThrow(() -> new IllegalArgumentException("일정을 찾을 수 없습니다."));
+                .orElseThrow(() -> new ScheduleNotFoundException("일정을 찾을 수 없습니다."));
 
         LocalDateTime startTime = request.startTime() != null
                 ? request.startTime()
@@ -227,14 +231,14 @@ public class SpaceService {
         validateOwner(space, userId);
 
         SpaceSchedule schedule = spaceScheduleRepository.findByIdAndSpaceId(scheduleId, spaceId)
-                .orElseThrow(() -> new IllegalArgumentException("일정을 찾을 수 없습니다."));
+                .orElseThrow(() -> new ScheduleNotFoundException("일정을 찾을 수 없습니다."));
 
         spaceScheduleRepository.delete(schedule);
     }
 
     private Space getActiveSpace(Long spaceId) {
         return spaceRepository.findByIdAndDeletedAtIsNull(spaceId)
-                .orElseThrow(() -> new IllegalArgumentException("공간을 찾을 수 없습니다."));
+                .orElseThrow(() -> new SpaceNotFoundException("공간을 찾을 수 없습니다."));
     }
 
     private void validateOwner(
@@ -242,7 +246,7 @@ public class SpaceService {
             String userId
     ) {
         if (!space.isOwner(userId)) {
-            throw new SecurityException("해당 공간에 대한 권한이 없습니다.");
+            throw new ForbiddenException("해당 공간에 대한 권한이 없습니다.");
         }
     }
 
