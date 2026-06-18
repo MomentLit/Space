@@ -77,4 +77,36 @@ class SpaceServiceTest {
         assertThat(response.approved()).isFalse();
         assertThat(response.available()).isTrue();
     }
+    @Test
+    void spaceUpdate() {
+        Space space = Space.create(
+                "host-1",
+                "space",
+                "description",
+                null,
+                "address",
+                "thumbnail",
+                10000,
+                SpaceCategory.OTHER,
+                null,
+                null,
+                null
+        );
+        space.update(
+                "space-2",
+                "description-2",
+                "ai",
+                "thumbnail-2",
+                1,
+                SpaceCategory.CAFE,
+                "01012345678"
+        );
+        assertThat(space.getName()).isEqualTo("space-2");
+        assertThat(space.getDescription()).isEqualTo("description-2");
+        assertThat(space.getAiSummary()).isEqualTo("ai");
+        assertThat(space.getThumbnailUrl()).isEqualTo("thumbnail-2");
+        assertThat(space.getPricePerHour()).isEqualTo(1);
+        assertThat(space.getCategory()).isEqualTo(SpaceCategory.CAFE);
+        assertThat(space.getPhone()).isEqualTo("01012345678");
+    }
 }

@@ -22,6 +22,8 @@ public record SpaceUpdateRequest(
         @JsonProperty("price_per_hour")
         Integer pricePerHour,
 
-        SpaceCategory category
+        SpaceCategory category,
+
+        String phone
 ) {
 }

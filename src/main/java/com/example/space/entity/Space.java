@@ -132,7 +132,8 @@ public class Space {
             String aiSummary,
             String thumbnailUrl,
             Integer pricePerHour,
-            SpaceCategory category
+            SpaceCategory category,
+            String phone
     ) {
         if (name != null) {
             this.name = name;
@@ -156,6 +157,9 @@ public class Space {
 
         if (category != null) {
             this.category = category;
+        }
+        if (phone != null) {
+            this.phone = phone;
         }
     }
 
