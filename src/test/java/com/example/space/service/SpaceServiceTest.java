@@ -1,5 +1,6 @@
 package com.example.space.service;
 
+import com.example.space.dto.request.SpaceUpdateRequest;
 import com.example.space.dto.response.SpaceMatchingContextResponse;
 import com.example.space.entity.Space;
 import com.example.space.entity.SpaceCategory;
@@ -76,5 +77,20 @@ class SpaceServiceTest {
         assertThat(response.active()).isTrue();
         assertThat(response.approved()).isFalse();
         assertThat(response.available()).isTrue();
+    }
+    @Test
+    void updateSpace_shouldUpdatePhone_whenRequestContainsPhone() {
+        Long spaceId = 1L;
+        Space space = Space.create(
+                "host-1", "space", "description", null, "address",
+                "thumbnail", 10000, SpaceCategory.OTHER, null, null, null
+                        );
+        SpaceUpdateRequest request = new SpaceUpdateRequest(
+                null, null, null, null, null, null, null, "01012345678"
+                );
+            when(spaceRepository.findByIdAndDeletedAtIsNull(spaceId))
+                .thenReturn(Optional.of(space));
+        spaceService.updateSpace("host-1", spaceId, request);
+        assertThat(space.getPhone()).isEqualTo("01012345678");
     }
 }

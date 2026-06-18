@@ -98,7 +98,8 @@ public class SpaceService {
                 request.aiSummary(),
                 request.thumbnailUrl(),
                 request.pricePerHour(),
-                request.category()
+                request.category(),
+                request.phone()
         );
 
         if (request.imageUrls() != null) {
