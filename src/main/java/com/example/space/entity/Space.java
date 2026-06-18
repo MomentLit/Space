@@ -56,6 +56,8 @@ public class Space {
     @Column(precision = 11, scale = 8)
     private BigDecimal lng;
 
+    private String phone;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -78,7 +80,8 @@ public class Space {
             Integer pricePerHour,
             SpaceCategory category,
             BigDecimal lat,
-            BigDecimal lng
+            BigDecimal lng,
+            String phone
     ) {
         this.hostId = hostId;
         this.name = name;
@@ -92,6 +95,7 @@ public class Space {
         this.lng = lng;
         this.adminStatus = ApprovalStatus.PENDING;
         this.isActive = true;
+        this.phone = phone;
     }
 
     public static Space create(
@@ -104,7 +108,8 @@ public class Space {
             Integer pricePerHour,
             SpaceCategory category,
             BigDecimal lat,
-            BigDecimal lng
+            BigDecimal lng,
+            String phone
     ) {
         return Space.builder()
                 .hostId(hostId)
@@ -117,6 +122,7 @@ public class Space {
                 .category(category)
                 .lat(lat)
                 .lng(lng)
+                .phone(phone)
                 .build();
     }
 

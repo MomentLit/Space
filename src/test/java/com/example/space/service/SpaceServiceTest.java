@@ -55,6 +55,7 @@ class SpaceServiceTest {
                 10000,
                 SpaceCategory.OTHER,
                 null,
+                null,
                 null
         );
 
