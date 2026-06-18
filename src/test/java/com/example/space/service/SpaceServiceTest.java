@@ -1,5 +1,6 @@
 package com.example.space.service;
 
+import com.example.space.dto.request.SpaceUpdateRequest;
 import com.example.space.dto.response.SpaceMatchingContextResponse;
 import com.example.space.entity.Space;
 import com.example.space.entity.SpaceCategory;
@@ -78,35 +79,18 @@ class SpaceServiceTest {
         assertThat(response.available()).isTrue();
     }
     @Test
-    void spaceUpdate() {
+    void updateSpace_shouldUpdatePhone_whenRequestContainsPhone() {
+        Long spaceId = 1L;
         Space space = Space.create(
-                "host-1",
-                "space",
-                "description",
-                null,
-                "address",
-                "thumbnail",
-                10000,
-                SpaceCategory.OTHER,
-                null,
-                null,
-                null
-        );
-        space.update(
-                "space-2",
-                "description-2",
-                "ai",
-                "thumbnail-2",
-                1,
-                SpaceCategory.CAFE,
-                "01012345678"
-        );
-        assertThat(space.getName()).isEqualTo("space-2");
-        assertThat(space.getDescription()).isEqualTo("description-2");
-        assertThat(space.getAiSummary()).isEqualTo("ai");
-        assertThat(space.getThumbnailUrl()).isEqualTo("thumbnail-2");
-        assertThat(space.getPricePerHour()).isEqualTo(1);
-        assertThat(space.getCategory()).isEqualTo(SpaceCategory.CAFE);
+                "host-1", "space", "description", null, "address",
+                "thumbnail", 10000, SpaceCategory.OTHER, null, null, null
+                        );
+        SpaceUpdateRequest request = new SpaceUpdateRequest(
+                null, null, null, null, null, null, null, "01012345678"
+                );
+            when(spaceRepository.findByIdAndDeletedAtIsNull(spaceId))
+                .thenReturn(Optional.of(space));
+        spaceService.updateSpace("host-1", spaceId, request);
         assertThat(space.getPhone()).isEqualTo("01012345678");
     }
 }
