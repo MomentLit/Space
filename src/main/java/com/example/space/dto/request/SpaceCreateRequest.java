@@ -26,6 +26,8 @@ public record SpaceCreateRequest(
 
         BigDecimal lat,
 
-        BigDecimal lng
+        BigDecimal lng,
+
+        String phone
 ) {
 }
