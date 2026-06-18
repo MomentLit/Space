@@ -50,7 +50,8 @@ public class SpaceService {
                 request.pricePerHour(),
                 request.category(),
                 request.lat(),
-                request.lng()
+                request.lng(),
+                request.phone()
         );
 
         Space savedSpace = spaceRepository.save(space);
