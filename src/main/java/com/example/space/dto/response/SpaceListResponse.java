@@ -9,7 +9,7 @@ public record SpaceListResponse(
 
         String name,
 
-        String address,
+        AddressResponse address,
 
         @JsonProperty("thumbnail_url")
         String thumbnailUrl,
@@ -20,11 +20,14 @@ public record SpaceListResponse(
         String category
 ) {
 
-    public static SpaceListResponse from(Space space) {
+    public static SpaceListResponse from(
+            Space space,
+            AddressResponse address
+    ) {
         return new SpaceListResponse(
                 space.getId(),
                 space.getName(),
-                space.getAddress(),
+                address,
                 space.getThumbnailUrl(),
                 space.getPricePerHour(),
                 space.getCategory().name()
