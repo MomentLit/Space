@@ -17,7 +17,7 @@ public record SpaceDetailResponse(
         @JsonProperty("ai_summary")
         String aiSummary,
 
-        String address,
+        AddressResponse address,
 
         @JsonProperty("thumbnail_url")
         String thumbnailUrl,
@@ -33,6 +33,7 @@ public record SpaceDetailResponse(
 
     public static SpaceDetailResponse from(
             Space space,
+            AddressResponse address,
             List<SpaceImage> images
     ) {
         return new SpaceDetailResponse(
@@ -40,7 +41,7 @@ public record SpaceDetailResponse(
                 space.getName(),
                 space.getDescription(),
                 space.getAiSummary(),
-                space.getAddress(),
+                address,
                 space.getThumbnailUrl(),
                 images.stream()
                         .map(SpaceImage::getImageUrl)

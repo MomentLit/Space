@@ -12,6 +12,8 @@ public record SpaceUpdateRequest(
 
         String description,
 
+        AddressRequest address,
+
         @JsonProperty("ai_summary")
         String aiSummary,
 
