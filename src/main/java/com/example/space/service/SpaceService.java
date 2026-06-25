@@ -4,6 +4,8 @@ import com.example.space.dto.request.ScheduleCreateRequest;
 import com.example.space.dto.request.ScheduleUpdateRequest;
 import com.example.space.dto.request.SpaceCreateRequest;
 import com.example.space.dto.request.SpaceUpdateRequest;
+import com.example.space.dto.request.AddressRequest;
+import com.example.space.dto.response.AddressResponse;
 import com.example.space.dto.response.MySpaceListResponses;
 import com.example.space.dto.response.ScheduleCreateResponse;
 import com.example.space.dto.response.ScheduleListResponses;
@@ -11,6 +13,7 @@ import com.example.space.dto.response.SpaceCreateResponse;
 import com.example.space.dto.response.SpaceDetailResponse;
 import com.example.space.dto.response.SpaceListResponses;
 import com.example.space.dto.response.SpaceMatchingContextResponse;
+import com.example.space.entity.Address;
 import com.example.space.entity.ApprovalStatus;
 import com.example.space.entity.Space;
 import com.example.space.entity.SpaceCategory;
@@ -20,6 +23,7 @@ import com.example.space.global.exception.BadRequestException;
 import com.example.space.global.exception.ForbiddenException;
 import com.example.space.global.exception.ScheduleNotFoundException;
 import com.example.space.global.exception.SpaceNotFoundException;
+import com.example.space.repository.AddressRepository;
 import com.example.space.repository.SpaceImageRepository;
 import com.example.space.repository.SpaceRepository;
 import com.example.space.repository.SpaceScheduleRepository;
@@ -29,6 +33,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -38,23 +45,24 @@ public class SpaceService {
     private final SpaceRepository spaceRepository;
     private final SpaceImageRepository spaceImageRepository;
     private final SpaceScheduleRepository spaceScheduleRepository;
+    private final AddressRepository addressRepository;
 
     @Transactional
     public SpaceCreateResponse createSpace(
             String hostId,
             SpaceCreateRequest request
     ) {
+        Address address = addressRepository.save(createAddress(request.address()));
+
         Space space = Space.create(
                 hostId,
                 request.name(),
                 request.description(),
                 null,
-                request.address(),
+                address.getId(),
                 request.thumbnailUrl(),
                 request.pricePerHour(),
                 request.category(),
-                request.lat(),
-                request.lng(),
                 request.phone()
         );
 
@@ -71,16 +79,17 @@ public class SpaceService {
     ) {
         List<Space> spaces = findSpaces(name, category);
 
-        return SpaceListResponses.from(spaces);
+        return SpaceListResponses.from(spaces, findAddressesBySpaces(spaces));
     }
 
     public SpaceDetailResponse getSpace(
             Long spaceId
     ) {
         Space space = getActiveSpace(spaceId);
+        Address address = getAddress(space.getAddressId());
         List<SpaceImage> images = spaceImageRepository.findAllBySpaceId(spaceId);
 
-        return SpaceDetailResponse.from(space, images);
+        return SpaceDetailResponse.from(space, AddressResponse.from(address), images);
     }
 
     @Transactional
@@ -91,6 +100,11 @@ public class SpaceService {
     ) {
         Space space = getActiveSpace(spaceId);
         validateOwner(space, userId);
+
+        if (request.address() != null) {
+            Address address = getAddress(space.getAddressId());
+            updateAddress(address, request.address());
+        }
 
         space.update(
                 request.name(),
@@ -129,7 +143,7 @@ public class SpaceService {
     ) {
         List<Space> spaces = findMySpaces(hostId, name, category);
 
-        return MySpaceListResponses.from(spaces);
+        return MySpaceListResponses.from(spaces, findAddressesBySpaces(spaces));
     }
 
     @Transactional
@@ -241,6 +255,93 @@ public class SpaceService {
     private Space getActiveSpace(Long spaceId) {
         return spaceRepository.findByIdAndDeletedAtIsNull(spaceId)
                 .orElseThrow(() -> new SpaceNotFoundException("공간을 찾을 수 없습니다."));
+    }
+
+    private Address getAddress(Long addressId) {
+        return addressRepository.findById(addressId)
+                .orElseThrow(() -> new SpaceNotFoundException("공간 주소를 찾을 수 없습니다."));
+    }
+
+    private Map<Long, Address> findAddressesBySpaces(List<Space> spaces) {
+        List<Long> addressIds = spaces.stream()
+                .map(Space::getAddressId)
+                .distinct()
+                .toList();
+
+        Map<Long, Address> addresses = addressRepository.findAllById(addressIds).stream()
+                .collect(Collectors.toMap(Address::getId, Function.identity()));
+
+        if (addresses.size() != addressIds.size()) {
+            throw new SpaceNotFoundException("공간 주소를 찾을 수 없습니다.");
+        }
+
+        return addresses;
+    }
+
+    private Address createAddress(AddressRequest request) {
+        if (request == null) {
+            throw new BadRequestException("공간 주소는 필수입니다.");
+        }
+        validateAddressRequiredForCreate(request);
+
+        return Address.create(
+                request.sido(),
+                request.sigungu(),
+                request.eupMyeonDong(),
+                request.roadAddress(),
+                request.jibunAddress(),
+                request.detailAddress(),
+                request.postalCode(),
+                request.lat(),
+                request.lng()
+        );
+    }
+
+    private void updateAddress(
+            Address address,
+            AddressRequest request
+    ) {
+        validateAddressRequiredFieldsNotBlankForUpdate(request);
+
+        address.update(
+                request.sido(),
+                request.sigungu(),
+                request.eupMyeonDong(),
+                request.roadAddress(),
+                request.jibunAddress(),
+                request.detailAddress(),
+                request.postalCode(),
+                request.lat(),
+                request.lng()
+        );
+    }
+
+    private void validateAddressRequiredForCreate(AddressRequest request) {
+        if (isBlank(request.sido())) {
+            throw new BadRequestException("시/도는 필수입니다.");
+        }
+        if (isBlank(request.sigungu())) {
+            throw new BadRequestException("시/군/구는 필수입니다.");
+        }
+        if (isBlank(request.roadAddress())) {
+            throw new BadRequestException("도로명 주소는 필수입니다.");
+        }
+    }
+
+    private void validateAddressRequiredFieldsNotBlankForUpdate(AddressRequest request) {
+        if (request.sido() != null && request.sido().isBlank()) {
+            throw new BadRequestException("시/도는 비어 있을 수 없습니다.");
+        }
+        if (request.sigungu() != null && request.sigungu().isBlank()) {
+            throw new BadRequestException("시/군/구는 비어 있을 수 없습니다.");
+        }
+        if (request.roadAddress() != null && request.roadAddress().isBlank()) {
+            throw new BadRequestException("도로명 주소는 비어 있을 수 없습니다.");
+        }
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.isBlank();
     }
 
     private void validateOwner(

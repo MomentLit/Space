@@ -266,7 +266,8 @@ components:
       properties:
         name: { type: string }
         description: { type: string, nullable: true }
-        address: { type: string }
+        address:
+          $ref: "#/components/schemas/Address"
         thumbnail_url: { type: string }
         image_urls:
           type: array
@@ -274,14 +275,15 @@ components:
         price_per_hour: { type: integer, format: int32 }
         category:
           $ref: "#/components/schemas/SpaceCategory"
-        lat: { type: number }
-        lng: { type: number }
+        phone: { type: string, nullable: true }
       description: "DTO has no field-level validation annotations in current code. Required fields are Needs confirmation."
     SpaceUpdateRequest:
       type: object
       properties:
         name: { type: string }
         description: { type: string }
+        address:
+          $ref: "#/components/schemas/Address"
         ai_summary: { type: string }
         thumbnail_url: { type: string }
         image_urls:
@@ -290,6 +292,19 @@ components:
         price_per_hour: { type: integer, format: int32 }
         category:
           $ref: "#/components/schemas/SpaceCategory"
+        phone: { type: string }
+    Address:
+      type: object
+      properties:
+        sido: { type: string }
+        sigungu: { type: string }
+        eup_myeon_dong: { type: string, nullable: true }
+        road_address: { type: string }
+        jibun_address: { type: string, nullable: true }
+        detail_address: { type: string, nullable: true }
+        postal_code: { type: string, nullable: true }
+        lat: { type: number, nullable: true }
+        lng: { type: number, nullable: true }
     SpaceCreateResponse:
       type: object
       properties:
@@ -307,7 +322,8 @@ components:
       properties:
         space_id: { type: integer, format: int64 }
         name: { type: string }
-        address: { type: string }
+        address:
+          $ref: "#/components/schemas/Address"
         thumbnail_url: { type: string }
         price_per_hour: { type: integer, format: int32 }
         category: { type: string }
@@ -342,7 +358,8 @@ components:
         name: { type: string }
         description: { type: string, nullable: true }
         ai_summary: { type: string, nullable: true }
-        address: { type: string }
+        address:
+          $ref: "#/components/schemas/Address"
         thumbnail_url: { type: string }
         image_urls:
           type: array
