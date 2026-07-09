@@ -47,7 +47,7 @@ public class Address {
     @Column(name = "postal_code")
     private String postalCode;
 
-    @Column(precision = 10, scale = 8)
+    @Column(precision = 11, scale = 8)
     private BigDecimal lat;
 
     @Column(precision = 11, scale = 8)
