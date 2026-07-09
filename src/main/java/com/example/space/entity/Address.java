@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -47,12 +46,6 @@ public class Address {
     @Column(name = "postal_code")
     private String postalCode;
 
-    @Column(precision = 11, scale = 8)
-    private BigDecimal lat;
-
-    @Column(precision = 11, scale = 8)
-    private BigDecimal lng;
-
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -69,9 +62,7 @@ public class Address {
             String roadAddress,
             String jibunAddress,
             String detailAddress,
-            String postalCode,
-            BigDecimal lat,
-            BigDecimal lng
+            String postalCode
     ) {
         this.sido = sido;
         this.sigungu = sigungu;
@@ -80,8 +71,6 @@ public class Address {
         this.jibunAddress = jibunAddress;
         this.detailAddress = detailAddress;
         this.postalCode = postalCode;
-        this.lat = lat;
-        this.lng = lng;
     }
 
     public static Address create(
@@ -91,9 +80,7 @@ public class Address {
             String roadAddress,
             String jibunAddress,
             String detailAddress,
-            String postalCode,
-            BigDecimal lat,
-            BigDecimal lng
+            String postalCode
     ) {
         return Address.builder()
                 .sido(sido)
@@ -103,8 +90,6 @@ public class Address {
                 .jibunAddress(jibunAddress)
                 .detailAddress(detailAddress)
                 .postalCode(postalCode)
-                .lat(lat)
-                .lng(lng)
                 .build();
     }
 
@@ -115,9 +100,7 @@ public class Address {
             String roadAddress,
             String jibunAddress,
             String detailAddress,
-            String postalCode,
-            BigDecimal lat,
-            BigDecimal lng
+            String postalCode
     ) {
         if (sido != null) {
             this.sido = sido;
@@ -139,12 +122,6 @@ public class Address {
         }
         if (postalCode != null) {
             this.postalCode = postalCode;
-        }
-        if (lat != null) {
-            this.lat = lat;
-        }
-        if (lng != null) {
-            this.lng = lng;
         }
     }
 }

@@ -351,9 +351,7 @@ public class SpaceService {
                 request.roadAddress(),
                 request.jibunAddress(),
                 request.detailAddress(),
-                request.postalCode(),
-                request.lat(),
-                request.lng()
+                request.postalCode()
         );
     }
 
@@ -370,9 +368,7 @@ public class SpaceService {
                 request.roadAddress(),
                 request.jibunAddress(),
                 request.detailAddress(),
-                request.postalCode(),
-                request.lat(),
-                request.lng()
+                request.postalCode()
         );
     }
 

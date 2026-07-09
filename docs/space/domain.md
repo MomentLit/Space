@@ -9,7 +9,7 @@
 확인됨:
 
 - 테이블명은 `spaces`다.
-- 생성 시 `hostId`, `name`, `description`, `aiSummary`, `address`, `thumbnailUrl`, `pricePerHour`, `category`, `lat`, `lng`를 받을 수 있다.
+- 생성 시 `hostId`, `name`, `description`, `aiSummary`, `addressId`, `thumbnailUrl`, `pricePerHour`, `category`, `phone`을 받을 수 있다.
 - `SpaceService.createSpace`는 `aiSummary`를 `null`로 전달한다.
 - 생성 시 `adminStatus`는 `ApprovalStatus.PENDING`으로 설정된다.
 - 생성 시 `isActive`는 `true`로 설정된다.
@@ -19,7 +19,7 @@
 확인 필요:
 
 - `hostId`가 실제 회원 또는 호스트인지 검증하는 책임
-- `address`, `lat`, `lng`의 필수 여부와 수정 가능 여부
+- `address`의 필수 여부와 수정 가능 여부
 - `pricePerHour`의 단위와 허용 범위
 
 ## SpaceImage

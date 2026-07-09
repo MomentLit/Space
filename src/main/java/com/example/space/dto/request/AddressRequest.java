@@ -2,8 +2,6 @@ package com.example.space.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.math.BigDecimal;
-
 public record AddressRequest(
         String sido,
 
@@ -22,10 +20,6 @@ public record AddressRequest(
         String detailAddress,
 
         @JsonProperty("postal_code")
-        String postalCode,
-
-        BigDecimal lat,
-
-        BigDecimal lng
+        String postalCode
 ) {
 }
