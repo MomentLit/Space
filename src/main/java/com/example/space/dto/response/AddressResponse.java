@@ -3,8 +3,6 @@ package com.example.space.dto.response;
 import com.example.space.entity.Address;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.math.BigDecimal;
-
 public record AddressResponse(
         String sido,
 
@@ -23,11 +21,7 @@ public record AddressResponse(
         String detailAddress,
 
         @JsonProperty("postal_code")
-        String postalCode,
-
-        BigDecimal lat,
-
-        BigDecimal lng
+        String postalCode
 ) {
 
     public static AddressResponse from(Address address) {
@@ -38,9 +32,7 @@ public record AddressResponse(
                 address.getRoadAddress(),
                 address.getJibunAddress(),
                 address.getDetailAddress(),
-                address.getPostalCode(),
-                address.getLat(),
-                address.getLng()
+                address.getPostalCode()
         );
     }
 }

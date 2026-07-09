@@ -53,7 +53,6 @@
 - 실제 운영 DB DDL은 어디에서 관리하는가?
 - `space_images.space_id`, `space_schedules.space_id`에 DB FK가 존재하는가?
 - `host_id`, `category`, `deleted_at`, `admin_status`, `is_active`에 index가 필요한가?
-- `lat`, `lng`는 필수인가?
 - `price_per_hour`가 `Integer`인 것이 장기적으로 충분한가?
 
 ## 외부 의존성 확인 필요

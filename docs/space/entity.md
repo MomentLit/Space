@@ -16,14 +16,12 @@
 | `name` | `name` | `String` | 공간 이름 |
 | `description` | `description` | `String` | 공간 설명 |
 | `aiSummary` | `ai_summary` | `String` | AI 요약 |
-| `address` | `address` | `String` | 주소 |
+| `addressId` | `address_id` | `Long` | 주소 ID |
 | `thumbnailUrl` | `thumbnail_url` | `String` | 대표 이미지 URL |
 | `pricePerHour` | `price_per_hour` | `Integer` | 시간당 가격 |
 | `adminStatus` | `admin_status` | `ApprovalStatus` | 관리자 승인 상태 |
 | `isActive` | `is_active` | `Boolean` | 활성 여부 |
 | `category` | `category` | `SpaceCategory` | 공간 카테고리 |
-| `lat` | `lat` | `BigDecimal` | 위도 |
-| `lng` | `lng` | `BigDecimal` | 경도 |
 | `createdAt` | `created_at` | `LocalDateTime` | 생성 시각 |
 | `updatedAt` | `updated_at` | `LocalDateTime` | 수정 시각 |
 | `deletedAt` | `deleted_at` | `LocalDateTime` | 삭제 시각 |
