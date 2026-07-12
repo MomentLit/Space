@@ -6,7 +6,7 @@ Space
 
 ## Service Responsibility
 
-Space creation, listing, detail lookup, update, soft deletion, owner space listing, schedule creation/listing/update/deletion, image URL persistence, and internal admin approval status lookup/update.
+Space creation, listing, detail lookup, update, soft deletion, owner space listing, schedule creation/listing/update/deletion, image URL persistence, internal admin approval status lookup/update, and internal admin space listing/detail lookup.
 
 ## Technology Stack
 
@@ -31,7 +31,7 @@ Space, SpaceImage, and SpaceSchedule entities with ApprovalStatus, SpaceCategory
 
 ## Main Features
 
-Space creation, listing, detail lookup, update, soft deletion, owner space listing, schedule creation/listing/update/deletion, image URL persistence, and internal admin approval status lookup/update.
+Space creation, listing, detail lookup, update, soft deletion, owner space listing, schedule creation/listing/update/deletion, image URL persistence, internal admin approval status lookup/update, and internal admin space listing/detail lookup.
 
 ## Main APIs
 
