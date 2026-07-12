@@ -14,6 +14,9 @@
 - Admin-status endpoints require a JWT whose role is ADMIN (Role enum), validated in the service layer; otherwise 403.
 - adminStatus can be changed only while the current status is PENDING; otherwise 400.
 - Admin-status lookup/change on a deleted or missing space returns 404.
+- Internal admin space endpoints (GET /internal/spaces, GET /internal/spaces/{space-id}) let admins list all non-deleted spaces and look up a non-deleted space's detail regardless of approval status or active state, without filters.
+- Internal admin space endpoints require a JWT whose role is ADMIN (Role enum), validated in the service layer; otherwise 403.
+- Internal admin space detail lookup on a deleted or missing space returns 404.
 
 ## Validation Rules
 
@@ -23,7 +26,7 @@ Visible validation rules are documented from DTO annotations, entity methods, an
 
 JWT stateless security is configured. GET /spaces, GET /spaces/*, and GET /spaces/*/schedule are permitAll; create/update/delete and owner schedule mutations are authenticated. The matcher order may make GET /spaces/me match the public /spaces/* rule; this requires confirmation/testing.
 
-Internal admin-status endpoints are permitAll at the SecurityConfig level; the ADMIN role check is performed in the service layer using the JWT role claim.
+Internal admin-status and admin space lookup endpoints are permitAll at the SecurityConfig level; the ADMIN role check is performed in the service layer using the JWT role claim.
 
 ## Creation Policy
 

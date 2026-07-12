@@ -1,6 +1,8 @@
 package com.example.space.controller;
 
 import com.example.space.dto.request.SpaceAdminStatusUpdateRequest;
+import com.example.space.dto.response.AdminSpaceDetailResponse;
+import com.example.space.dto.response.AdminSpaceListResponses;
 import com.example.space.dto.response.SpaceAdminStatusResponse;
 import com.example.space.dto.response.SpaceMatchingContextResponse;
 import com.example.space.global.security.UserPrincipal;
@@ -38,6 +40,25 @@ public class InternalSpaceController {
     ) {
         return ResponseEntity.ok(
                 spaceService.getMatchingContext(spaceId, startTime, endTime)
+        );
+    }
+
+    @GetMapping
+    public ResponseEntity<AdminSpaceListResponses> getAdminSpaces(
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        return ResponseEntity.ok(
+                spaceService.getAdminSpaces(getRole(principal))
+        );
+    }
+
+    @GetMapping("/{space-id}")
+    public ResponseEntity<AdminSpaceDetailResponse> getAdminSpace(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable("space-id") Long spaceId
+    ) {
+        return ResponseEntity.ok(
+                spaceService.getAdminSpace(getRole(principal), spaceId)
         );
     }
 
