@@ -39,6 +39,53 @@ paths:
                 $ref: "#/components/schemas/SpaceMatchingContextResponse"
         default:
           description: "Needs confirmation"
+  /internal/spaces/{space-id}/admin-status:
+    get:
+      tags: ["Internal"]
+      summary: "Get space admin status"
+      description: "Internal endpoint for admins to check the approval status of a non-deleted space. Requires a JWT whose role is ADMIN; otherwise 403."
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+      responses:
+        "200":
+          description: "Admin status returned."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpaceAdminStatusResponse"
+        "403":
+          description: "Requester is not an admin."
+        "404":
+          description: "Space not found or deleted."
+        default:
+          description: "Needs confirmation"
+    patch:
+      tags: ["Internal"]
+      summary: "Update space admin status"
+      description: "Internal endpoint for admins to change the approval status of a non-deleted space. Allowed only while the current status is PENDING. Requires a JWT whose role is ADMIN; otherwise 403."
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SpaceAdminStatusUpdateRequest"
+      responses:
+        "204":
+          description: "Admin status updated."
+        "400":
+          description: "admin_status is missing or the space is not PENDING."
+        "403":
+          description: "Requester is not an admin."
+        "404":
+          description: "Space not found or deleted."
+        default:
+          description: "Needs confirmation"
   /spaces:
     post:
       tags: ["Spaces"]
@@ -261,6 +308,9 @@ components:
     SpaceCategory:
       type: string
       enum: [PRACTICE_ROOM, STUDIO, MEETING_ROOM, PARTY_ROOM, CLASSROOM, POPUP_STORE, OFFICE, HALL, CAFE, OTHER]
+    ApprovalStatus:
+      type: string
+      enum: [PENDING, APPROVED, REJECTED]
     SpaceCreateRequest:
       type: object
       properties:
@@ -309,6 +359,19 @@ components:
       type: object
       properties:
         space_id: { type: integer, format: int64 }
+    SpaceAdminStatusUpdateRequest:
+      type: object
+      required: [admin_status]
+      properties:
+        admin_status:
+          $ref: "#/components/schemas/ApprovalStatus"
+      description: "admin_status is required by service validation."
+    SpaceAdminStatusResponse:
+      type: object
+      properties:
+        space_id: { type: integer, format: int64 }
+        admin_status:
+          $ref: "#/components/schemas/ApprovalStatus"
     SpaceMatchingContextResponse:
       type: object
       properties:

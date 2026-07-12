@@ -2,6 +2,7 @@ package com.example.space.service;
 
 import com.example.space.dto.request.ScheduleCreateRequest;
 import com.example.space.dto.request.ScheduleUpdateRequest;
+import com.example.space.dto.request.SpaceAdminStatusUpdateRequest;
 import com.example.space.dto.request.SpaceCreateRequest;
 import com.example.space.dto.request.SpaceUpdateRequest;
 import com.example.space.dto.request.AddressRequest;
@@ -9,12 +10,14 @@ import com.example.space.dto.response.AddressResponse;
 import com.example.space.dto.response.MySpaceListResponses;
 import com.example.space.dto.response.ScheduleCreateResponse;
 import com.example.space.dto.response.ScheduleListResponses;
+import com.example.space.dto.response.SpaceAdminStatusResponse;
 import com.example.space.dto.response.SpaceCreateResponse;
 import com.example.space.dto.response.SpaceDetailResponse;
 import com.example.space.dto.response.SpaceListResponses;
 import com.example.space.dto.response.SpaceMatchingContextResponse;
 import com.example.space.entity.Address;
 import com.example.space.entity.ApprovalStatus;
+import com.example.space.entity.Role;
 import com.example.space.entity.Space;
 import com.example.space.entity.SpaceCategory;
 import com.example.space.entity.SpaceImage;
@@ -205,6 +208,38 @@ public class SpaceService {
         );
     }
 
+    public SpaceAdminStatusResponse getAdminStatus(
+            String role,
+            Long spaceId
+    ) {
+        validateAdmin(role);
+
+        Space space = getActiveSpace(spaceId);
+
+        return SpaceAdminStatusResponse.from(space);
+    }
+
+    @Transactional
+    public void updateAdminStatus(
+            String role,
+            Long spaceId,
+            SpaceAdminStatusUpdateRequest request
+    ) {
+        validateAdmin(role);
+
+        if (request.adminStatus() == null) {
+            throw new BadRequestException("승인 상태는 필수입니다.");
+        }
+
+        Space space = getActiveSpace(spaceId);
+
+        if (space.getAdminStatus() != ApprovalStatus.PENDING) {
+            throw new BadRequestException("승인 대기 상태의 공간만 승인 상태를 변경할 수 있습니다.");
+        }
+
+        space.updateAdminStatus(request.adminStatus());
+    }
+
     @Transactional
     public void updateSchedule(
             String userId,
@@ -350,6 +385,12 @@ public class SpaceService {
     ) {
         if (!space.isOwner(userId)) {
             throw new ForbiddenException("해당 공간에 대한 권한이 없습니다.");
+        }
+    }
+
+    private void validateAdmin(String role) {
+        if (!Role.ADMIN.name().equals(role)) {
+            throw new ForbiddenException("관리자 권한이 없습니다.");
         }
     }
 
