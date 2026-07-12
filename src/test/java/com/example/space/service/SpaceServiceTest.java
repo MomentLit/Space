@@ -1,12 +1,16 @@
 package com.example.space.service;
 
 import com.example.space.dto.request.AddressRequest;
+import com.example.space.dto.request.SpaceAdminStatusUpdateRequest;
 import com.example.space.dto.request.SpaceCreateRequest;
 import com.example.space.dto.request.SpaceUpdateRequest;
+import com.example.space.dto.response.SpaceAdminStatusResponse;
 import com.example.space.dto.response.SpaceMatchingContextResponse;
+import com.example.space.entity.ApprovalStatus;
 import com.example.space.entity.Space;
 import com.example.space.entity.SpaceCategory;
 import com.example.space.global.exception.BadRequestException;
+import com.example.space.global.exception.ForbiddenException;
 import com.example.space.repository.AddressRepository;
 import com.example.space.repository.SpaceImageRepository;
 import com.example.space.repository.SpaceRepository;
@@ -118,5 +122,95 @@ class SpaceServiceTest {
         assertThatThrownBy(() -> spaceService.createSpace("host-1", request))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage("시/도는 필수입니다.");
+    }
+
+    @Test
+    void getAdminStatus_shouldReturnAdminStatus_whenRequesterIsAdmin() {
+        Space space = Space.create(
+                "host-1", "space", "description", null, 1L,
+                "thumbnail", 10000, SpaceCategory.OTHER, null
+        );
+
+        when(spaceRepository.findByIdAndDeletedAtIsNull(1L))
+                .thenReturn(Optional.of(space));
+
+        SpaceAdminStatusResponse response = spaceService.getAdminStatus("ADMIN", 1L);
+
+        assertThat(response.adminStatus()).isEqualTo(ApprovalStatus.PENDING);
+    }
+
+    @Test
+    void getAdminStatus_shouldThrowForbidden_whenRequesterIsNotAdmin() {
+        assertThatThrownBy(() -> spaceService.getAdminStatus("USER", 1L))
+                .isInstanceOf(ForbiddenException.class)
+                .hasMessage("관리자 권한이 없습니다.");
+    }
+
+    @Test
+    void getAdminStatus_shouldThrowForbidden_whenRoleIsNull() {
+        assertThatThrownBy(() -> spaceService.getAdminStatus(null, 1L))
+                .isInstanceOf(ForbiddenException.class)
+                .hasMessage("관리자 권한이 없습니다.");
+    }
+
+    @Test
+    void updateAdminStatus_shouldThrowForbidden_whenRoleIsNull() {
+        assertThatThrownBy(() -> spaceService.updateAdminStatus(
+                null,
+                1L,
+                new SpaceAdminStatusUpdateRequest(ApprovalStatus.APPROVED)
+        ))
+                .isInstanceOf(ForbiddenException.class)
+                .hasMessage("관리자 권한이 없습니다.");
+    }
+
+    @Test
+    void updateAdminStatus_shouldChangeStatus_whenSpaceIsPending() {
+        Space space = Space.create(
+                "host-1", "space", "description", null, 1L,
+                "thumbnail", 10000, SpaceCategory.OTHER, null
+        );
+
+        when(spaceRepository.findByIdAndDeletedAtIsNull(1L))
+                .thenReturn(Optional.of(space));
+
+        spaceService.updateAdminStatus(
+                "ADMIN",
+                1L,
+                new SpaceAdminStatusUpdateRequest(ApprovalStatus.APPROVED)
+        );
+
+        assertThat(space.getAdminStatus()).isEqualTo(ApprovalStatus.APPROVED);
+    }
+
+    @Test
+    void updateAdminStatus_shouldReject_whenSpaceIsNotPending() {
+        Space space = Space.create(
+                "host-1", "space", "description", null, 1L,
+                "thumbnail", 10000, SpaceCategory.OTHER, null
+        );
+        space.updateAdminStatus(ApprovalStatus.APPROVED);
+
+        when(spaceRepository.findByIdAndDeletedAtIsNull(1L))
+                .thenReturn(Optional.of(space));
+
+        assertThatThrownBy(() -> spaceService.updateAdminStatus(
+                "ADMIN",
+                1L,
+                new SpaceAdminStatusUpdateRequest(ApprovalStatus.REJECTED)
+        ))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("승인 대기 상태의 공간만 승인 상태를 변경할 수 있습니다.");
+    }
+
+    @Test
+    void updateAdminStatus_shouldReject_whenAdminStatusIsNull() {
+        assertThatThrownBy(() -> spaceService.updateAdminStatus(
+                "ADMIN",
+                1L,
+                new SpaceAdminStatusUpdateRequest(null)
+        ))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("승인 상태는 필수입니다.");
     }
 }

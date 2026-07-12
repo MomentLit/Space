@@ -148,6 +148,10 @@ public class Space {
         }
     }
 
+    public void updateAdminStatus(ApprovalStatus adminStatus) {
+        this.adminStatus = adminStatus;
+    }
+
     public void delete() {
         this.deletedAt = LocalDateTime.now();
         this.isActive = false;
