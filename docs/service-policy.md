@@ -10,6 +10,10 @@
 - Schedule creation defaults isBookable to true.
 - Schedule startTime and endTime are required and startTime must be before endTime.
 - Schedule update preserves omitted values and validates the resulting time range.
+- Internal admin-status endpoints (GET/PATCH /internal/spaces/{space-id}/admin-status) let admins check and change a space's adminStatus.
+- Admin-status endpoints require a JWT whose role is ADMIN (Role enum), validated in the service layer; otherwise 403.
+- adminStatus can be changed only while the current status is PENDING; otherwise 400.
+- Admin-status lookup/change on a deleted or missing space returns 404.
 
 ## Validation Rules
 
@@ -18,6 +22,8 @@ Visible validation rules are documented from DTO annotations, entity methods, an
 ## Authorization Rules
 
 JWT stateless security is configured. GET /spaces, GET /spaces/*, and GET /spaces/*/schedule are permitAll; create/update/delete and owner schedule mutations are authenticated. The matcher order may make GET /spaces/me match the public /spaces/* rule; this requires confirmation/testing.
+
+Internal admin-status endpoints are permitAll at the SecurityConfig level; the ADMIN role check is performed in the service layer using the JWT role claim.
 
 ## Creation Policy
 
@@ -46,7 +52,6 @@ The service throws IllegalArgumentException and SecurityException directly. No @
 
 ## Needs Confirmation
 
-- Admin approval workflow is not exposed by visible APIs.
 - Whether public lists should filter only APPROVED spaces is Needs confirmation.
 - Schedule overlap and booking conflict policy are not visible.
 - Image upload/storage integration is not visible; only image URLs are persisted.
