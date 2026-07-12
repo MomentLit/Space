@@ -7,6 +7,8 @@ import com.example.space.dto.request.SpaceCreateRequest;
 import com.example.space.dto.request.SpaceUpdateRequest;
 import com.example.space.dto.request.AddressRequest;
 import com.example.space.dto.response.AddressResponse;
+import com.example.space.dto.response.AdminSpaceDetailResponse;
+import com.example.space.dto.response.AdminSpaceListResponses;
 import com.example.space.dto.response.MySpaceListResponses;
 import com.example.space.dto.response.ScheduleCreateResponse;
 import com.example.space.dto.response.ScheduleListResponses;
@@ -206,6 +208,29 @@ public class SpaceService {
                 Boolean.TRUE.equals(space.getIsActive()),
                 available
         );
+    }
+
+    public AdminSpaceListResponses getAdminSpaces(
+            String role
+    ) {
+        validateAdmin(role);
+
+        List<Space> spaces = spaceRepository.findAllByDeletedAtIsNull();
+
+        return AdminSpaceListResponses.from(spaces, findAddressesBySpaces(spaces));
+    }
+
+    public AdminSpaceDetailResponse getAdminSpace(
+            String role,
+            Long spaceId
+    ) {
+        validateAdmin(role);
+
+        Space space = getActiveSpace(spaceId);
+        Address address = getAddress(space.getAddressId());
+        List<SpaceImage> images = spaceImageRepository.findAllBySpaceId(spaceId);
+
+        return AdminSpaceDetailResponse.from(space, AddressResponse.from(address), images);
     }
 
     public SpaceAdminStatusResponse getAdminStatus(
