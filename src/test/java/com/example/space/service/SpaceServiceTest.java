@@ -117,7 +117,7 @@ class SpaceServiceTest {
         SpaceCreateRequest request = new SpaceCreateRequest(
                 "space",
                 "description",
-                new AddressRequest(null, "마포구", null, "서울특별시 마포구 월드컵북로 1", null, null, null, null, null),
+                new AddressRequest(null, "마포구", null, "서울특별시 마포구 월드컵북로 1", null, null, null),
                 "thumbnail",
                 List.of(),
                 10000,

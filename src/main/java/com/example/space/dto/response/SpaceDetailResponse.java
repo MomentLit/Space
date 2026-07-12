@@ -10,6 +10,9 @@ public record SpaceDetailResponse(
         @JsonProperty("space_id")
         Long spaceId,
 
+        @JsonProperty("host_id")
+        String hostId,
+
         String name,
 
         String description,
@@ -38,6 +41,7 @@ public record SpaceDetailResponse(
     ) {
         return new SpaceDetailResponse(
                 space.getId(),
+                space.getHostId(),
                 space.getName(),
                 space.getDescription(),
                 space.getAiSummary(),
