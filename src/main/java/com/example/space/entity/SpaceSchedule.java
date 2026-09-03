@@ -1,5 +1,6 @@
 package com.example.space.entity;
 
+import com.example.space.global.exception.BadRequestException;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -75,11 +76,11 @@ public class SpaceSchedule {
             LocalDateTime endTime
     ) {
         if (startTime == null || endTime == null) {
-            throw new IllegalArgumentException("일정 시작 시간과 종료 시간은 필수입니다.");
+            throw new BadRequestException("일정 시작 시간과 종료 시간은 필수입니다.");
         }
 
         if (!startTime.isBefore(endTime)) {
-            throw new IllegalArgumentException("일정 시작 시간은 종료 시간보다 빨라야 합니다.");
+            throw new BadRequestException("일정 시작 시간은 종료 시간보다 빨라야 합니다.");
         }
     }
 }

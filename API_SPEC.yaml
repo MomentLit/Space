@@ -9,7 +9,123 @@ servers:
 tags:
   - name: "Spaces"
   - name: "Schedules"
+  - name: "Internal"
 paths:
+  /internal/spaces:
+    get:
+      tags: ["Internal"]
+      summary: "List all spaces for admin"
+      description: "Internal endpoint for admins to list all non-deleted spaces regardless of approval status or active state. No filters. Requires a JWT whose role is ADMIN; otherwise 403."
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: "All non-deleted spaces returned."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSpaceListResponses"
+        "403":
+          description: "Requester is not an admin."
+        default:
+          description: "Needs confirmation"
+  /internal/spaces/{space-id}:
+    get:
+      tags: ["Internal"]
+      summary: "Get space detail for admin"
+      description: "Internal endpoint for admins to get the detail of a non-deleted space regardless of approval status or active state. Requires a JWT whose role is ADMIN; otherwise 403."
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+      responses:
+        "200":
+          description: "Space detail returned."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSpaceDetailResponse"
+        "403":
+          description: "Requester is not an admin."
+        "404":
+          description: "Space not found or deleted."
+        default:
+          description: "Needs confirmation"
+  /internal/spaces/{space-id}/matching-context:
+    get:
+      tags: ["Internal"]
+      summary: "Get space matching context"
+      description: "Internal endpoint used by Matching Service to resolve the host and validate approval, active state, and schedule availability."
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+        - name: start-time
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: end-time
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: "Matching context returned."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpaceMatchingContextResponse"
+        default:
+          description: "Needs confirmation"
+  /internal/spaces/{space-id}/admin-status:
+    get:
+      tags: ["Internal"]
+      summary: "Get space admin status"
+      description: "Internal endpoint for admins to check the approval status of a non-deleted space. Requires a JWT whose role is ADMIN; otherwise 403."
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+      responses:
+        "200":
+          description: "Admin status returned."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SpaceAdminStatusResponse"
+        "403":
+          description: "Requester is not an admin."
+        "404":
+          description: "Space not found or deleted."
+        default:
+          description: "Needs confirmation"
+    patch:
+      tags: ["Internal"]
+      summary: "Update space admin status"
+      description: "Internal endpoint for admins to change the approval status of a non-deleted space. Allowed only while the current status is PENDING. Requires a JWT whose role is ADMIN; otherwise 403."
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/SpaceId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SpaceAdminStatusUpdateRequest"
+      responses:
+        "204":
+          description: "Admin status updated."
+        "400":
+          description: "admin_status is missing or the space is not PENDING."
+        "403":
+          description: "Requester is not an admin."
+        "404":
+          description: "Space not found or deleted."
+        default:
+          description: "Needs confirmation"
   /spaces:
     post:
       tags: ["Spaces"]
@@ -232,12 +348,16 @@ components:
     SpaceCategory:
       type: string
       enum: [PRACTICE_ROOM, STUDIO, MEETING_ROOM, PARTY_ROOM, CLASSROOM, POPUP_STORE, OFFICE, HALL, CAFE, OTHER]
+    ApprovalStatus:
+      type: string
+      enum: [PENDING, APPROVED, REJECTED]
     SpaceCreateRequest:
       type: object
       properties:
         name: { type: string }
         description: { type: string, nullable: true }
-        address: { type: string }
+        address:
+          $ref: "#/components/schemas/Address"
         thumbnail_url: { type: string }
         image_urls:
           type: array
@@ -245,14 +365,15 @@ components:
         price_per_hour: { type: integer, format: int32 }
         category:
           $ref: "#/components/schemas/SpaceCategory"
-        lat: { type: number }
-        lng: { type: number }
+        phone: { type: string, nullable: true }
       description: "DTO has no field-level validation annotations in current code. Required fields are Needs confirmation."
     SpaceUpdateRequest:
       type: object
       properties:
         name: { type: string }
         description: { type: string }
+        address:
+          $ref: "#/components/schemas/Address"
         ai_summary: { type: string }
         thumbnail_url: { type: string }
         image_urls:
@@ -261,16 +382,49 @@ components:
         price_per_hour: { type: integer, format: int32 }
         category:
           $ref: "#/components/schemas/SpaceCategory"
+        phone: { type: string }
+    Address:
+      type: object
+      properties:
+        sido: { type: string }
+        sigungu: { type: string }
+        eup_myeon_dong: { type: string, nullable: true }
+        road_address: { type: string }
+        jibun_address: { type: string, nullable: true }
+        detail_address: { type: string, nullable: true }
+        postal_code: { type: string, nullable: true }
     SpaceCreateResponse:
       type: object
       properties:
         space_id: { type: integer, format: int64 }
+    SpaceAdminStatusUpdateRequest:
+      type: object
+      required: [admin_status]
+      properties:
+        admin_status:
+          $ref: "#/components/schemas/ApprovalStatus"
+      description: "admin_status is required by service validation."
+    SpaceAdminStatusResponse:
+      type: object
+      properties:
+        space_id: { type: integer, format: int64 }
+        admin_status:
+          $ref: "#/components/schemas/ApprovalStatus"
+    SpaceMatchingContextResponse:
+      type: object
+      properties:
+        space_id: { type: integer, format: int64 }
+        host_id: { type: string }
+        approved: { type: boolean }
+        active: { type: boolean }
+        available: { type: boolean }
     SpaceListResponse:
       type: object
       properties:
         space_id: { type: integer, format: int64 }
         name: { type: string }
-        address: { type: string }
+        address:
+          $ref: "#/components/schemas/Address"
         thumbnail_url: { type: string }
         price_per_hour: { type: integer, format: int32 }
         category: { type: string }
@@ -298,6 +452,40 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/MySpaceListResponse"
+    AdminSpaceListResponse:
+      type: object
+      properties:
+        space_id: { type: integer, format: int64 }
+        host_id: { type: string }
+        name: { type: string }
+        description: { type: string, nullable: true }
+        ai_summary: { type: string, nullable: true }
+        address:
+          $ref: "#/components/schemas/Address"
+        thumbnail_url: { type: string }
+        price_per_hour: { type: integer, format: int32 }
+        admin_status:
+          $ref: "#/components/schemas/ApprovalStatus"
+        is_active: { type: boolean }
+        category: { type: string }
+        phone: { type: string, nullable: true }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    AdminSpaceListResponses:
+      type: object
+      properties:
+        spaces:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminSpaceListResponse"
+    AdminSpaceDetailResponse:
+      allOf:
+        - $ref: "#/components/schemas/AdminSpaceListResponse"
+        - type: object
+          properties:
+            image_urls:
+              type: array
+              items: { type: string }
     SpaceDetailResponse:
       type: object
       properties:
@@ -305,7 +493,8 @@ components:
         name: { type: string }
         description: { type: string, nullable: true }
         ai_summary: { type: string, nullable: true }
-        address: { type: string }
+        address:
+          $ref: "#/components/schemas/Address"
         thumbnail_url: { type: string }
         image_urls:
           type: array

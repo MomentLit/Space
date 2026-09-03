@@ -6,7 +6,6 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 @Getter
 @Entity
@@ -30,8 +29,8 @@ public class Space {
     @Column(name = "ai_summary", columnDefinition = "TEXT")
     private String aiSummary;
 
-    @Column(nullable = false)
-    private String address;
+    @Column(name = "address_id", nullable = false)
+    private Long addressId;
 
     @Column(name = "thumbnail_url", nullable = false)
     private String thumbnailUrl;
@@ -50,11 +49,7 @@ public class Space {
     @Column(nullable = false)
     private SpaceCategory category;
 
-    @Column(precision = 10, scale = 8)
-    private BigDecimal lat;
-
-    @Column(precision = 11, scale = 8)
-    private BigDecimal lng;
+    private String phone;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -73,25 +68,23 @@ public class Space {
             String name,
             String description,
             String aiSummary,
-            String address,
+            Long addressId,
             String thumbnailUrl,
             Integer pricePerHour,
             SpaceCategory category,
-            BigDecimal lat,
-            BigDecimal lng
+            String phone
     ) {
         this.hostId = hostId;
         this.name = name;
         this.description = description;
         this.aiSummary = aiSummary;
-        this.address = address;
+        this.addressId = addressId;
         this.thumbnailUrl = thumbnailUrl;
         this.pricePerHour = pricePerHour;
         this.category = category;
-        this.lat = lat;
-        this.lng = lng;
         this.adminStatus = ApprovalStatus.PENDING;
         this.isActive = true;
+        this.phone = phone;
     }
 
     public static Space create(
@@ -99,24 +92,22 @@ public class Space {
             String name,
             String description,
             String aiSummary,
-            String address,
+            Long addressId,
             String thumbnailUrl,
             Integer pricePerHour,
             SpaceCategory category,
-            BigDecimal lat,
-            BigDecimal lng
+            String phone
     ) {
         return Space.builder()
                 .hostId(hostId)
                 .name(name)
                 .description(description)
                 .aiSummary(aiSummary)
-                .address(address)
+                .addressId(addressId)
                 .thumbnailUrl(thumbnailUrl)
                 .pricePerHour(pricePerHour)
                 .category(category)
-                .lat(lat)
-                .lng(lng)
+                .phone(phone)
                 .build();
     }
 
@@ -126,7 +117,8 @@ public class Space {
             String aiSummary,
             String thumbnailUrl,
             Integer pricePerHour,
-            SpaceCategory category
+            SpaceCategory category,
+            String phone
     ) {
         if (name != null) {
             this.name = name;
@@ -151,6 +143,13 @@ public class Space {
         if (category != null) {
             this.category = category;
         }
+        if (phone != null) {
+            this.phone = phone;
+        }
+    }
+
+    public void updateAdminStatus(ApprovalStatus adminStatus) {
+        this.adminStatus = adminStatus;
     }
 
     public void delete() {

@@ -6,7 +6,7 @@ Space
 
 ## Service Responsibility
 
-Space creation, listing, detail lookup, update, soft deletion, owner space listing, schedule creation/listing/update/deletion, and image URL persistence.
+Space creation, listing, detail lookup, update, soft deletion, owner space listing, schedule creation/listing/update/deletion, image URL persistence, internal admin approval status lookup/update, and internal admin space listing/detail lookup.
 
 ## Technology Stack
 
@@ -27,11 +27,11 @@ Space creation, listing, detail lookup, update, soft deletion, owner space listi
 
 ## Main Domains
 
-Space, SpaceImage, and SpaceSchedule entities with ApprovalStatus and SpaceCategory enums. SpaceImage and SpaceSchedule reference Space by spaceId value.
+Space, SpaceImage, and SpaceSchedule entities with ApprovalStatus, SpaceCategory, and Role enums. SpaceImage and SpaceSchedule reference Space by spaceId value.
 
 ## Main Features
 
-Space creation, listing, detail lookup, update, soft deletion, owner space listing, schedule creation/listing/update/deletion, and image URL persistence.
+Space creation, listing, detail lookup, update, soft deletion, owner space listing, schedule creation/listing/update/deletion, image URL persistence, internal admin approval status lookup/update, and internal admin space listing/detail lookup.
 
 ## Main APIs
 
@@ -64,7 +64,6 @@ When API behavior changes, `API_SPEC.yaml` must be updated in the same PR.
 
 ## Needs Confirmation
 
-- Admin approval workflow is not exposed by visible APIs.
 - Whether public lists should filter only APPROVED spaces is Needs confirmation.
 - Schedule overlap and booking conflict policy are not visible.
 - Image upload/storage integration is not visible; only image URLs are persisted.

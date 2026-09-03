@@ -3,7 +3,6 @@ package com.example.space.dto.request;
 import com.example.space.entity.SpaceCategory;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 public record SpaceCreateRequest(
@@ -11,7 +10,7 @@ public record SpaceCreateRequest(
 
         String description,
 
-        String address,
+        AddressRequest address,
 
         @JsonProperty("thumbnail_url")
         String thumbnailUrl,
@@ -24,8 +23,6 @@ public record SpaceCreateRequest(
 
         SpaceCategory category,
 
-        BigDecimal lat,
-
-        BigDecimal lng
+        String phone
 ) {
 }

@@ -4,9 +4,10 @@ import com.example.space.entity.Space;
 import com.example.space.entity.SpaceImage;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
-public record SpaceDetailResponse(
+public record AdminSpaceDetailResponse(
         @JsonProperty("space_id")
         Long spaceId,
 
@@ -31,15 +32,29 @@ public record SpaceDetailResponse(
         @JsonProperty("price_per_hour")
         Integer pricePerHour,
 
-        String category
+        @JsonProperty("admin_status")
+        String adminStatus,
+
+        @JsonProperty("is_active")
+        Boolean isActive,
+
+        String category,
+
+        String phone,
+
+        @JsonProperty("created_at")
+        LocalDateTime createdAt,
+
+        @JsonProperty("updated_at")
+        LocalDateTime updatedAt
 ) {
 
-    public static SpaceDetailResponse from(
+    public static AdminSpaceDetailResponse from(
             Space space,
             AddressResponse address,
             List<SpaceImage> images
     ) {
-        return new SpaceDetailResponse(
+        return new AdminSpaceDetailResponse(
                 space.getId(),
                 space.getHostId(),
                 space.getName(),
@@ -51,7 +66,12 @@ public record SpaceDetailResponse(
                         .map(SpaceImage::getImageUrl)
                         .toList(),
                 space.getPricePerHour(),
-                space.getCategory().name()
+                space.getAdminStatus().name(),
+                space.getIsActive(),
+                space.getCategory().name(),
+                space.getPhone(),
+                space.getCreatedAt(),
+                space.getUpdatedAt()
         );
     }
 }

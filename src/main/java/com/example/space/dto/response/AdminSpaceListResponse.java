@@ -1,12 +1,11 @@
 package com.example.space.dto.response;
 
 import com.example.space.entity.Space;
-import com.example.space.entity.SpaceImage;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
-public record SpaceDetailResponse(
+public record AdminSpaceListResponse(
         @JsonProperty("space_id")
         Long spaceId,
 
@@ -25,21 +24,31 @@ public record SpaceDetailResponse(
         @JsonProperty("thumbnail_url")
         String thumbnailUrl,
 
-        @JsonProperty("image_urls")
-        List<String> imageUrls,
-
         @JsonProperty("price_per_hour")
         Integer pricePerHour,
 
-        String category
+        @JsonProperty("admin_status")
+        String adminStatus,
+
+        @JsonProperty("is_active")
+        Boolean isActive,
+
+        String category,
+
+        String phone,
+
+        @JsonProperty("created_at")
+        LocalDateTime createdAt,
+
+        @JsonProperty("updated_at")
+        LocalDateTime updatedAt
 ) {
 
-    public static SpaceDetailResponse from(
+    public static AdminSpaceListResponse from(
             Space space,
-            AddressResponse address,
-            List<SpaceImage> images
+            AddressResponse address
     ) {
-        return new SpaceDetailResponse(
+        return new AdminSpaceListResponse(
                 space.getId(),
                 space.getHostId(),
                 space.getName(),
@@ -47,11 +56,13 @@ public record SpaceDetailResponse(
                 space.getAiSummary(),
                 address,
                 space.getThumbnailUrl(),
-                images.stream()
-                        .map(SpaceImage::getImageUrl)
-                        .toList(),
                 space.getPricePerHour(),
-                space.getCategory().name()
+                space.getAdminStatus().name(),
+                space.getIsActive(),
+                space.getCategory().name(),
+                space.getPhone(),
+                space.getCreatedAt(),
+                space.getUpdatedAt()
         );
     }
 }

@@ -6,17 +6,17 @@ import com.example.space.entity.Space;
 import java.util.List;
 import java.util.Map;
 
-public record SpaceListResponses(
-        List<SpaceListResponse> spaces
+public record AdminSpaceListResponses(
+        List<AdminSpaceListResponse> spaces
 ) {
 
-    public static SpaceListResponses from(
+    public static AdminSpaceListResponses from(
             List<Space> spaces,
             Map<Long, Address> addresses
     ) {
-        return new SpaceListResponses(
+        return new AdminSpaceListResponses(
                 spaces.stream()
-                        .map(space -> SpaceListResponse.from(
+                        .map(space -> AdminSpaceListResponse.from(
                                 space,
                                 AddressResponse.from(addresses.get(space.getAddressId()))
                         ))
